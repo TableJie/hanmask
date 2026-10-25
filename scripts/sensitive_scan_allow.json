@@ -1,0 +1,22 @@
+[
+  {
+    "path": "README.md",
+    "rule": "pii-*",
+    "reason": "Usage examples use well-known public test values"
+  },
+  {
+    "path": "README.zh-TW.md",
+    "rule": "pii-*",
+    "reason": "Usage examples use well-known public test values"
+  },
+  {
+    "path": "hanmask/recognizers.py",
+    "rule": "pii-*",
+    "reason": "Docstrings and comments show format examples with test values"
+  },
+  {
+    "path": "tests/test_sensitive_scan.py",
+    "rule": "*",
+    "reason": "Scanner tests feed synthetic UNC paths, private IPs and guard words"
+  }
+]
