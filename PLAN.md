@@ -82,10 +82,18 @@ client ──► hanmask proxy ──► LLM API
 - **額外個資類型**：護照號碼、健保卡號、銀行帳號三項都做，號碼前方要有關鍵字才遮蔽（2026-10-25）。
 - **適用範圍**：只涵蓋走公開 API 的程式（SDK、Claude Code 設定 `ANTHROPIC_BASE_URL`）。Claude Desktop 與 claude.ai 網頁版連的是 claude.ai 自己的後端，無法改 `base_url`，不在範圍內。
 - **公司智慧財產權**：公司沒有限制員工業餘開發的相關規定。程式碼與測試資料仍不放任何公司內容。
+- **開發與使用環境**：只在 cat 開發；dog 從 tag 安裝並跑 proxy，給本機 Claude Code 用，不 commit。
+- **回饋管道**：dog 的漏遮、誤遮走 GitHub Issue（label `from-dog`），只放格式相同的合成資料與會失敗的 pytest，使用者看過後用瀏覽器送出。
+- **協作流程**：`CLAUDE.md`、`docs/work-mode.md`，skill `/coda`、`/grill-me`、`/report-miss`。
+
+## 待決
+
+- 分享給其他部門的部署方式（集中式伺服器、各自安裝、Docker）。
 
 ## 開發
 
 ```bash
 pip install -e '.[dev]'
+git config core.hooksPath .githooks
 pytest
 ```

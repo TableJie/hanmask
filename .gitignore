@@ -5,3 +5,9 @@ __pycache__/
 .venv/
 dist/
 build/
+
+# Workflow (per machine)
+.claude/error-log.jsonl
+.claude/settings.local.json
+CLAUDE.local.md
+local/

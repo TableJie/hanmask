@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/error-log.mjs\""
+          }
+        ]
+      }
+    ]
+  }
+}
