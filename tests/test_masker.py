@@ -1,4 +1,24 @@
-from hanmask import Masker, StreamRestorer, Vault, restore
+import pytest
+
+from hanmask import Masker, SensitiveContentError, StreamRestorer, Vault, find_sensitive, restore
+
+
+def test_strict_mode_blocks_special_categories():
+    with pytest.raises(SensitiveContentError) as exc:
+        Masker(strict=True).mask("請假原因：憂鬱症回診，身分證 A123456789")
+    assert exc.value.categories == ["MEDICAL"]
+    # The error never carries the text itself.
+    assert "A123456789" not in str(exc.value)
+
+
+def test_non_strict_mode_masks_and_forwards():
+    masked, _ = Masker().mask("請假原因：憂鬱症回診，身分證 A123456789")
+    assert masked == "請假原因：憂鬱症回診，身分證 <TW_ID_1>"
+
+
+def test_find_sensitive_categories():
+    assert find_sensitive("體檢報告與前科紀錄") == ["HEALTH_CHECK", "CRIMINAL_RECORD"]
+    assert find_sensitive("訂單編號 12345678") == []
 
 
 def test_round_trip():
