@@ -71,13 +71,15 @@
 - 版本號 semver(`pyproject.toml` 的 `version`),tag `vX.Y.Z`(annotated)。
 - 發布前在 `CHANGELOG.md` 加一節「這版改了什麼」(面向使用者，3–8 條)。
 - 流程:`/coda` 全綠 → 改 `version` 與 `CHANGELOG.md` → commit → `git tag -a vX.Y.Z -m "<摘要>"` → `git push origin main vX.Y.Z`。
-- **dog 安裝 / 升級**(dog 要有 repo 才能用 `/report-miss`,所以 clone 而不是只用 pip):
+- **dog 安裝 / 升級**(dog 要有 repo 才能用 `/report-miss`,所以 clone 而不是只用 pip;裝 `[dev]` 是因為 `/report-miss` 要跑 pytest):
 
   ```bash
   git clone https://github.com/TableJie/hanmask && cd hanmask   # 第一次
   git fetch --tags && git checkout vX.Y.Z
-  python -m venv .venv && .venv/Scripts/python -m pip install .
+  python -m venv .venv && .venv/Scripts/python -m pip install ".[dev]"
   ```
+
+  第一次另外建兩個 gitignored 檔：`CLAUDE.local.md`(內容 `環境：dog`)、`local/guard-words.txt`(每行一個公司名稱或代號，給 `/report-miss` 掃 Issue 草稿用)。
 
 ## 紅線
 
