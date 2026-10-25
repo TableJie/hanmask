@@ -28,6 +28,18 @@ def normalize(text: str) -> str:
     return text.translate(_FULLWIDTH)
 
 
+# How far back a context keyword may sit, and where a clause ends: in
+# "帳號 jay，電話 0912345678" the keyword belongs to the first clause only.
+# Full-width ， and ； are already ASCII after normalize().
+_CONTEXT_WINDOW = 20
+_CLAUSE_BREAK = re.compile(r"[,;。、\n]")
+
+
+def _has_context(context: re.Pattern[str], normalized: str, start: int) -> bool:
+    before = normalized[max(0, start - _CONTEXT_WINDOW):start]
+    return context.search(_CLAUSE_BREAK.split(before)[-1]) is not None
+
+
 @dataclass(frozen=True)
 class Entity:
     type: str
@@ -43,11 +55,16 @@ class Recognizer:
     validate: Callable[[str], bool] | None = None
     # Higher wins when two matches overlap with the same length.
     priority: int = 0
+    # Formats with no checksum (plain digit runs) only count when a keyword
+    # such as 護照 or 帳號 appears shortly before them, in the same clause.
+    context: re.Pattern[str] | None = None
 
     def find(self, text: str, normalized: str | None = None) -> Iterable[Entity]:
         """Match against the normalized text; report the original characters."""
         normalized = normalize(text) if normalized is None else normalized
         for m in self.pattern.finditer(normalized):
+            if self.context is not None and not _has_context(self.context, normalized, m.start()):
+                continue
             if self.validate is None or self.validate(m.group(0)):
                 yield Entity(self.type, m.start(), m.end(), text[m.start():m.end()])
 
@@ -128,6 +145,26 @@ DEFAULT_RECOGNIZERS: tuple[Recognizer, ...] = (
         re.compile(_L + r"[A-Za-z][1289A-Da-d]\d{8}" + _R),
         is_valid_tw_id,
         priority=40,
+    ),
+    # No checksum for these three, so each needs a keyword nearby. They outrank
+    # CREDIT_CARD and PHONE: "帳號 0912345678" is an account, not a phone.
+    Recognizer(
+        "PASSPORT",
+        re.compile(_L + r"[A-Za-z]{0,2}\d{7,9}" + _R),
+        priority=35,
+        context=re.compile(r"護照|passport", re.IGNORECASE),
+    ),
+    Recognizer(
+        "TW_NHI",
+        re.compile(_L + r"\d{4}[ -]?\d{4}[ -]?\d{4}" + _R),
+        priority=35,
+        context=re.compile(r"健保"),
+    ),
+    Recognizer(
+        "BANK_ACCOUNT",
+        re.compile(_L + r"\d(?:[ -]?\d){9,15}" + _R),
+        priority=35,
+        context=re.compile(r"帳號|帳戶|戶頭|匯款|轉帳|account|acct", re.IGNORECASE),
     ),
     Recognizer(
         "CREDIT_CARD",
