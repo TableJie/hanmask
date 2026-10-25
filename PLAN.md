@@ -46,7 +46,7 @@ client ──► hanmask proxy ──► LLM API
 - [x] 舊式居留證（第二碼為英文字母）
 - [x] 全形數字與英文（`０９１２－３４５－６７８`），還原時保留全形寫法
 - [x] 繁體中文 README（`README.zh-TW.md`）
-- [ ] 護照號碼、健保卡號、銀行帳號：要先評估誤判率
+- [x] 護照號碼、健保卡號、銀行帳號：沒有檢查碼，改用前方關鍵字把關（同一子句、20 字內）
 - [ ] 用合成資料量測準確率與誤判率
 
 ### 第 3–6 天：proxy 與還原
@@ -56,6 +56,8 @@ client ──► hanmask proxy ──► LLM API
 - [ ] 非串流回應還原
 - [ ] SSE 串流還原：每個 content delta 交給 `StreamRestorer`，結束時 `flush()`
 - [ ] tool call 參數裡的佔位符也要還原（JSON 字串內）
+- [ ] Anthropic `tool_result` 內容也要遮蔽（Claude Code 讀檔、執行指令的結果都放在這裡）
+- [ ] 圖片與 PDF（base64 的 `image`、`document` 區塊）無法用文字規則遮蔽：要決定放行、擋下或抽文字
 - [ ] 整合測試：用假的上游伺服器驗證整條路徑
 
 ### 第 7–10 天：中文姓名與地址
@@ -77,6 +79,8 @@ client ──► hanmask proxy ──► LLM API
 - **專案名稱**：hanmask（han = 漢字）。PyPI 與 GitHub 上都還沒有人使用（2026-10-25 查詢）。
 - **投入時間**：每天約 8 小時，時程改以工作天計。
 - **授權條款**：Apache-2.0（含專利授權條款，企業採用較放心），見 `LICENSE`。
+- **額外個資類型**：護照號碼、健保卡號、銀行帳號三項都做，號碼前方要有關鍵字才遮蔽（2026-10-25）。
+- **適用範圍**：只涵蓋走公開 API 的程式（SDK、Claude Code 設定 `ANTHROPIC_BASE_URL`）。Claude Desktop 與 claude.ai 網頁版連的是 claude.ai 自己的後端，無法改 `base_url`，不在範圍內。
 - **公司智慧財產權**：公司沒有限制員工業餘開發的相關規定。程式碼與測試資料仍不放任何公司內容。
 
 ## 開發

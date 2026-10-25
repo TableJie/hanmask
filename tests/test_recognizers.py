@@ -86,3 +86,36 @@ def test_full_width_bad_checksum_is_not_masked():
 
 def test_old_style_resident_certificate_in_text():
     assert types("居留證號碼AB12345677") == [("TW_ID", "AB12345677")]
+
+
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        ("護照號碼：312345678", ("PASSPORT", "312345678")),
+        ("Passport No. E12345678", ("PASSPORT", "E12345678")),
+        ("健保卡號 0000 1234 5678", ("TW_NHI", "0000 1234 5678")),
+        ("匯款至 (013) 帳號 1234-5678-9012", ("BANK_ACCOUNT", "1234-5678-9012")),
+        ("戶頭0912345678", ("BANK_ACCOUNT", "0912345678")),
+        ("護照號碼：３１２３４５６７８", ("PASSPORT", "３１２３４５６７８")),
+    ],
+)
+def test_keyword_types_with_context(text, expected):
+    assert types(text) == [expected]
+
+
+@pytest.mark.parametrize("text", ["訂單312345678", "料號 0000 1234 5678", "交易序號 123456789012"])
+def test_keyword_types_need_context(text):
+    assert types(text) == []
+
+
+def test_context_does_not_cross_clause():
+    # 帳號 belongs to the first clause, so the number stays a phone.
+    assert types("帳號是 jay，電話 0912345678") == [("PHONE", "0912345678")]
+
+
+def test_context_window_is_limited():
+    assert types("護照" + "的" * 30 + "312345678") == []
+
+
+def test_tw_id_wins_over_passport():
+    assert types("護照號碼 A123456789") == [("TW_ID", "A123456789")]
