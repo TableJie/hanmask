@@ -1,6 +1,6 @@
-# maskgate 開發計畫
+# hanmask 開發計畫
 
-來源：Claude Docs《去識別化閘道 開源計畫書》。專案名稱定為 `maskgate`（取代文件裡的暫名 Veil）。
+來源：Claude Docs《去識別化閘道 開源計畫書》。專案名稱定為 `hanmask`（取代文件裡的暫名 Veil，以及原本的 maskgate：GitHub 上已有同名且同類型的專案）。
 
 ## 目標（MVP）
 
@@ -9,7 +9,7 @@
 ## 架構
 
 ```
-client ──► maskgate proxy ──► LLM API
+client ──► hanmask proxy ──► LLM API
             │ 1. 辨識個資（規則 → NER）
             │ 2. 換成 <TYPE_n> 佔位符，對照表存在記憶體（Vault）
             │ 3. 轉送給上游
@@ -23,12 +23,12 @@ client ──► maskgate proxy ──► LLM API
 
 | 模組 | 職責 | 狀態 |
 |---|---|---|
-| `maskgate/recognizers.py` | 正規表示式＋檢查碼的規則辨識器 | ✅ 已完成 |
-| `maskgate/masker.py` | `Masker`、`Vault`、`restore()`：可逆遮蔽 | ✅ 已完成 |
-| `maskgate/streaming.py` | `StreamRestorer`：處理被切在兩個片段之間的佔位符 | ✅ 已完成 |
-| `maskgate/proxy/` | FastAPI：OpenAI `/v1/chat/completions`、Anthropic `/v1/messages`，含 SSE | ⏳ 第 3–6 天 |
-| `maskgate/ner.py` | 本地 NER：中文姓名、地址 | ⏳ 第 7–10 天 |
-| `maskgate/audit.py`、`config.py` | SQLite 稽核日誌、YAML 設定 | ⏳ 第 11–12 天 |
+| `hanmask/recognizers.py` | 正規表示式＋檢查碼的規則辨識器 | ✅ 已完成 |
+| `hanmask/masker.py` | `Masker`、`Vault`、`restore()`：可逆遮蔽 | ✅ 已完成 |
+| `hanmask/streaming.py` | `StreamRestorer`：處理被切在兩個片段之間的佔位符 | ✅ 已完成 |
+| `hanmask/proxy/` | FastAPI：OpenAI `/v1/chat/completions`、Anthropic `/v1/messages`，含 SSE | ⏳ 第 3–6 天 |
+| `hanmask/ner.py` | 本地 NER：中文姓名、地址 | ⏳ 第 7–10 天 |
+| `hanmask/audit.py`、`config.py` | SQLite 稽核日誌、YAML 設定 | ⏳ 第 11–12 天 |
 | `Dockerfile`、README、測試資料集 | 包裝與發表 | ⏳ 第 13–15 天 |
 
 ## 里程碑與待辦
@@ -74,7 +74,7 @@ client ──► maskgate proxy ──► LLM API
 
 ## 已決定
 
-- **專案名稱**：maskgate。發表前確認 PyPI 名稱沒被佔用。
+- **專案名稱**：hanmask（han = 漢字）。PyPI 與 GitHub 上都還沒有人使用（2026-10-25 查詢）。
 - **投入時間**：每天約 8 小時，時程改以工作天計。
 - **授權條款**：Apache-2.0（含專利授權條款，企業採用較放心），見 `LICENSE`。
 - **公司智慧財產權**：公司沒有限制員工業餘開發的相關規定。程式碼與測試資料仍不放任何公司內容。
