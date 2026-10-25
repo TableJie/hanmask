@@ -41,3 +41,10 @@ def test_stream_does_not_hold_plain_text():
     assert r.feed("x <") == "x "
     assert r.feed("3") == "<3"
     assert r.flush() == ""
+
+
+def test_full_width_round_trip_keeps_original_form():
+    original = "請回電０９１２３４５６７８，統一編號０４５９５２５７。"
+    masked, vault = Masker().mask(original)
+    assert masked == "請回電<PHONE_1>，統一編號<TW_UBN_1>。"
+    assert restore(masked, vault) == original

@@ -15,6 +15,18 @@ from typing import Callable, Iterable
 _L = r"(?<![0-9A-Za-z])"
 _R = r"(?![0-9A-Za-z])"
 
+# Traditional Chinese text often types numbers and IDs in full-width form
+# (０９１２－３４５－６７８, Ａ１２３４５６７８９, （０２）). Map full-width ASCII
+# and the ideographic space to ASCII one character for one character, so
+# offsets in the normalized text are offsets in the original.
+_FULLWIDTH = {cp: cp - 0xFEE0 for cp in range(0xFF01, 0xFF5F)}
+_FULLWIDTH[0x3000] = 0x20
+
+
+def normalize(text: str) -> str:
+    """Full-width to half-width, length-preserving."""
+    return text.translate(_FULLWIDTH)
+
 
 @dataclass(frozen=True)
 class Entity:
@@ -32,11 +44,12 @@ class Recognizer:
     # Higher wins when two matches overlap with the same length.
     priority: int = 0
 
-    def find(self, text: str) -> Iterable[Entity]:
-        for m in self.pattern.finditer(text):
-            value = m.group(0)
-            if self.validate is None or self.validate(value):
-                yield Entity(self.type, m.start(), m.end(), value)
+    def find(self, text: str, normalized: str | None = None) -> Iterable[Entity]:
+        """Match against the normalized text; report the original characters."""
+        normalized = normalize(text) if normalized is None else normalized
+        for m in self.pattern.finditer(normalized):
+            if self.validate is None or self.validate(m.group(0)):
+                yield Entity(self.type, m.start(), m.end(), text[m.start():m.end()])
 
 
 # --- Taiwan national ID / resident certificate -------------------------------
@@ -51,12 +64,18 @@ _TW_ID_WEIGHTS = (1, 9, 8, 7, 6, 5, 4, 3, 2, 1, 1)
 
 
 def is_valid_tw_id(value: str) -> bool:
-    """National ID (A123456789) or new-style resident certificate (A800000014)."""
-    value = value.upper()
-    if not re.fullmatch(r"[A-Z][1289]\d{8}", value):
+    """National ID (A123456789) or resident certificate.
+
+    Resident certificates come in the new style (A800000014, since 2021) and
+    the old style (AB12345677), still valid on cards issued before then; in
+    the old style the second letter counts as the last digit of its code.
+    """
+    value = normalize(value).upper()
+    if not re.fullmatch(r"[A-Z][1289A-D]\d{8}", value):
         return False
     code = _TW_LETTER_CODES[value[0]]
-    digits = [code // 10, code % 10] + [int(c) for c in value[1:]]
+    second = _TW_LETTER_CODES[value[1]] % 10 if value[1].isalpha() else int(value[1])
+    digits = [code // 10, code % 10, second] + [int(c) for c in value[2:]]
     return sum(d * w for d, w in zip(digits, _TW_ID_WEIGHTS)) % 10 == 0
 
 
@@ -106,7 +125,7 @@ DEFAULT_RECOGNIZERS: tuple[Recognizer, ...] = (
     ),
     Recognizer(
         "TW_ID",
-        re.compile(_L + r"[A-Za-z][1289]\d{8}" + _R),
+        re.compile(_L + r"[A-Za-z][1289A-Da-d]\d{8}" + _R),
         is_valid_tw_id,
         priority=40,
     ),
@@ -149,11 +168,12 @@ def find_entities(
 
     Overlaps are resolved greedily: longer matches first, then by priority.
     """
+    normalized = normalize(text)
     candidates: list[tuple[Entity, int]] = []
     for r in recognizers:
         if enabled is not None and r.type not in enabled:
             continue
-        candidates.extend((e, r.priority) for e in r.find(text))
+        candidates.extend((e, r.priority) for e in r.find(text, normalized))
 
     candidates.sort(key=lambda c: (-(c[0].end - c[0].start), -c[1], c[0].start))
     chosen: list[Entity] = []

@@ -12,12 +12,12 @@ def types(text):
     return [(e.type, e.text) for e in find_entities(text)]
 
 
-@pytest.mark.parametrize("value", ["A123456789", "a123456789", "F131104093", "A800000014"])
+@pytest.mark.parametrize("value", ["A123456789", "a123456789", "F131104093", "A800000014", "AB12345677", "FD12345676"])
 def test_tw_id_valid(value):
     assert is_valid_tw_id(value)
 
 
-@pytest.mark.parametrize("value", ["A123456788", "A323456789", "1234567890", "A12345678"])
+@pytest.mark.parametrize("value", ["A123456788", "A323456789", "1234567890", "A12345678", "AB12345678", "AE12345677"])
 def test_tw_id_invalid(value):
     assert not is_valid_tw_id(value)
 
@@ -68,3 +68,21 @@ def test_embedded_in_longer_alnum_is_ignored():
 def test_enabled_filter():
     entities = find_entities("A123456789 a@b.co", enabled={"EMAIL"})
     assert [e.type for e in entities] == ["EMAIL"]
+
+
+def test_full_width_values_in_traditional_chinese_text():
+    # Original characters are reported; validation runs on the half-width form.
+    text = "身分證字號：Ａ１２３４５６７８９，手機０９１２－３４５－６７８，市話（０２）２３４５－６７８９"
+    assert types(text) == [
+        ("TW_ID", "Ａ１２３４５６７８９"),
+        ("PHONE", "０９１２－３４５－６７８"),
+        ("PHONE", "（０２）２３４５－６７８９"),
+    ]
+
+
+def test_full_width_bad_checksum_is_not_masked():
+    assert types("編號Ａ１２３４５６７８８") == []
+
+
+def test_old_style_resident_certificate_in_text():
+    assert types("居留證號碼AB12345677") == [("TW_ID", "AB12345677")]

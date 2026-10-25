@@ -1,9 +1,12 @@
 # maskgate
+
+English | [繁體中文](README.zh-TW.md)
+
 Self-hosted LLM proxy that masks PII before it leaves your network, and restores it in the response. CJK-ready.
 
 ## Status
 
-Early development. The rule-based recognizers and the reversible mask/restore core are in place; the HTTP proxy is next. See [PLAN.md](PLAN.md).
+Early development. The rule-based recognizers and the reversible mask/restore core are in place; the HTTP proxy is next. Traditional Chinese text is handled natively: full-width digits and letters (０９１２－３４５－６７８), Taiwan IDs and resident certificates, and values written flush against Chinese characters. See [PLAN.md](PLAN.md).
 
 ```python
 from maskgate import Masker, restore
