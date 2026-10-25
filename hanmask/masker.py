@@ -12,6 +12,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 
 from .recognizers import DEFAULT_RECOGNIZERS, Recognizer, find_entities
+from .sensitive import SensitiveContentError, find_sensitive
 
 PLACEHOLDER_RE = re.compile(r"<([A-Z][A-Z_]*_\d+)>")
 
@@ -53,12 +54,20 @@ class Masker:
         self,
         recognizers: tuple[Recognizer, ...] = DEFAULT_RECOGNIZERS,
         enabled: set[str] | None = None,
+        strict: bool = False,
     ) -> None:
         self.recognizers = recognizers
         self.enabled = enabled
+        self.strict = strict
 
     def mask(self, text: str, vault: Vault | None = None) -> tuple[str, Vault]:
-        """Mask text. Pass the same vault for every message in one request."""
+        """Mask text. Pass the same vault for every message in one request.
+
+        In strict mode, raises SensitiveContentError when the text mentions
+        special-category data that rules cannot mask.
+        """
+        if self.strict and (categories := find_sensitive(text)):
+            raise SensitiveContentError(categories)
         vault = vault if vault is not None else Vault()
         out: list[str] = []
         pos = 0

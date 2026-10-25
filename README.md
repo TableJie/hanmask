@@ -6,7 +6,7 @@ Self-hosted LLM proxy that masks PII before it leaves your network, and restores
 
 ## Status
 
-Early development. The rule-based recognizers and the reversible mask/restore core are in place; the HTTP proxy is next. Traditional Chinese text is handled natively: full-width digits and letters (０９１２－３４５－６７８), Taiwan IDs and resident certificates, passport, NHI card and bank account numbers (masked only next to a keyword such as 護照 or 帳號), and values written flush against Chinese characters. See [PLAN.md](PLAN.md).
+Early development. The rule-based recognizers and the reversible mask/restore core are in place; the HTTP proxy is next. Traditional Chinese text is handled natively: full-width digits and letters (０９１２－３４５－６７８), Taiwan IDs and resident certificates, passport, NHI card and bank account numbers (masked only next to a keyword such as 護照 or 帳號), addresses, birth dates, salaries, IP addresses, UUIDs and social IDs, labelled business identifiers such as order and invoice numbers and company names (on by default; `Masker(enabled=PII_TYPES)` masks PII only), and values written flush against Chinese characters. See [PLAN.md](PLAN.md).
 
 ```python
 from hanmask import Masker, restore
