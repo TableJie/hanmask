@@ -1,4 +1,4 @@
-from maskgate import Masker, StreamRestorer, Vault, restore
+from hanmask import Masker, StreamRestorer, Vault, restore
 
 
 def test_round_trip():

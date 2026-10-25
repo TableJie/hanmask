@@ -1,4 +1,4 @@
-# maskgate
+# hanmask
 
 [English](README.md) | 繁體中文
 
@@ -6,9 +6,9 @@
 
 ## 為什麼需要
 
-企業想用雲端 LLM，但客戶姓名、電話、身分證字號不能送出去，結果多半是全面禁用，或員工私下使用。maskgate 放在你的程式和 LLM API 之間：
+企業想用雲端 LLM，但客戶姓名、電話、身分證字號不能送出去，結果多半是全面禁用，或員工私下使用。hanmask 放在你的程式和 LLM API 之間：
 
-1. 程式照常呼叫 API，只要把 `base_url` 指向 maskgate。
+1. 程式照常呼叫 API，只要把 `base_url` 指向 hanmask。
 2. 個資被換成 `<PHONE_1>`、`<TW_ID_1>` 這類佔位符後才送出。
 3. 回答回來時，佔位符換回原文，使用者感覺不到中間有一層。
 4. 對照表只存在記憶體裡，請求結束就丟棄；稽核日誌只記類型與數量，不存原文。
@@ -34,7 +34,7 @@
 ## 使用範例
 
 ```python
-from maskgate import Masker, restore
+from hanmask import Masker, restore
 
 masked, vault = Masker().mask("請聯絡 0912-345-678，身分證 A123456789")
 # masked == "請聯絡 <PHONE_1>，身分證 <TW_ID_1>"
@@ -54,7 +54,7 @@ pytest
 
 ## 免責聲明
 
-maskgate 協助降低個資外洩風險，但不保證辨識率 100%，也不代表使用後即符合《個人資料保護法》等法規要求。
+hanmask 協助降低個資外洩風險，但不保證辨識率 100%，也不代表使用後即符合《個人資料保護法》等法規要求。
 
 ## 授權
 

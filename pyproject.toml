@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "maskgate"
+name = "hanmask"
 version = "0.0.1"
 description = "Self-hosted LLM proxy that masks PII before it leaves your network, and restores it in the response. CJK-ready."
 readme = "README.md"

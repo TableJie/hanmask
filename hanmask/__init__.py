@@ -1,4 +1,4 @@
-"""maskgate: mask PII before prompts reach an LLM, restore it in the response."""
+"""hanmask: mask PII before prompts reach an LLM, restore it in the response."""
 
 from .masker import Masker, Vault, restore
 from .recognizers import DEFAULT_RECOGNIZERS, Entity, Recognizer, find_entities

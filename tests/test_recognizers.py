@@ -1,6 +1,6 @@
 import pytest
 
-from maskgate.recognizers import (
+from hanmask.recognizers import (
     find_entities,
     is_valid_luhn,
     is_valid_tw_id,
